@@ -76,6 +76,70 @@ optimizer = optim.SGD(model.parameters(), lr=0.01)
 
 #______________________________________________________________________________
 
+# SUB_SECTION: Step 4 - Training
+
+# Each round of training is called an `epoch`
+# The model will go through the data 500 times to figure out a pattern
+# that will allow it to make predictions for the delivery times of distances
+# that are not in the data.
+for epoch in range(500):
+
+    # 0. Clears all of the calculated values from the previous epoch.
+    # Without this, PyTorch would accumulate adjustments, 
+    # which could break the learning process.
+    optimizer.zero_grad()
+
+    # 1. Make a prediction
+    # The syntax is `outputs = model(inputs)`
+    # Performs the "forward pass", 
+    # where the model makes predictions based on the input distances.
+    outputs = model(distances)
+
+    # 2. Calculates how wrong the predicted outputs are by comparing them 
+    # to the actual delivery times in the data.
+    # The syntax is `loss_function(predictions, targets)`
+    loss = loss_function(outputs, times)
+
+    # 3. This is where the model adjusts its parameters 
+    # to improve its predictions
+    # The technical term is Back Propagation.
+    loss.backward()
+
+    # 4. Update the model
+    optimizer.step()
+
+#______________________________________________________________________________
+
+# SUB_SECTION: Step 5 - Evaluation
+
+distance_to_predict = 7.0
+
+distance_to_predict = 7.0
+
+# This tells PyTorch that I am not training the model anymore,
+# and that I'm doing inference (Making a prediction for a data point that I
+# don't have)
+with torch.no_grad():
+    # Convert the Python variable into a 2D PyTorch tensor that the model expects
+    new_distance = torch.tensor([[distance_to_predict]], dtype=torch.float32)
+    
+    # Pass the new data to the trained model to get a prediction
+    predicted_time = model(new_distance)
+    
+    # Use .item() to extract the scalar value from the tensor for printing
+    print()
+    print(f"Prediction for a {distance_to_predict}-mile delivery: {predicted_time.item():.1f} minutes")
+
+    # Use the scalar value in a conditional statement to make the final decision
+    if predicted_time.item() > 30:
+        print()
+        print("Decision: ❌ Reject the delivery.")
+    else:
+        print()
+        print("Decision: ✅ Accept the delivery.")
+
+#______________________________________________________________________________
+
 def main():
     pass
 
